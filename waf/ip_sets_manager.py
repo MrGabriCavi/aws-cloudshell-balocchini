@@ -131,8 +131,8 @@ if __name__ == "__main__":
                 selected_ip_set = list_and_select_ip_set(client, args.scope)
                 if selected_ip_set:
                     while True:  # Aggiungi un ciclo per permettere all'utente di riprovare o uscire
-                        action = input("Vuoi aggiungere (A) o rimuovere (R) IP, o uscire (exit)? [A/R/exit]: ").lower()
-                        if action == 'exit':
+                        action = input("Vuoi aggiungere (A) o rimuovere (R) IP, o uscire (exit)? [A/R/Q]: ").lower()
+                        if action == 'q':
                             print("Operazione annullata.")
                             break  # Esce dal ciclo while, tornando al menu principale
                         elif action not in ['a', 'r']:
