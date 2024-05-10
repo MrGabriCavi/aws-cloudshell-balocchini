@@ -1,12 +1,20 @@
+import sys
+import os
+# Aggiungi il percorso della directory superiore a sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import boto3
 import argparse
 from prettytable import PrettyTable
 from botocore.exceptions import ProfileNotFound
+from Helpers.awstools import AWSTools
 
-def initialize_client(service, profile, scope):
+def initialize_client(service, profile, region, scope):
     try:
         session = boto3.Session(profile_name=profile) if profile else boto3.Session()
-        return session.client(service, region_name='us-east-1' if scope == 'CLOUDFRONT' else None)
+        # Se lo scope è CLOUDFRONT, utilizza una regione specifica per CloudFront, altrimenti usa la regione fornita
+        selected_region = 'us-east-1' if scope == 'CLOUDFRONT' else region
+        return session.client(service, region_name=selected_region)
     except ProfileNotFound:
         print(f"Profilo '{profile}' non trovato. Assicurati che il profilo sia configurato correttamente.")
         exit()
@@ -109,9 +117,45 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Gestisci gli IP Set di AWS WAF.')
     parser.add_argument('scope', type=str, choices=['REGIONAL', 'CLOUDFRONT'], help='Lo scope degli IP Set da gestire.')
     parser.add_argument('--profile', type=str, help='Il nome del profilo AWS da utilizzare per le credenziali.', default=None)
+    
+    # Aggiungi un'opzione per la selezione della regione
+    parser.add_argument('--region', type=str, help='La regione AWS da utilizzare.', default=None)
+    
     args = parser.parse_args()
 
-    client = initialize_client('wafv2', args.profile, args.scope)
+    # Chiedi all'utente di selezionare una regione se non specificata come argomento
+     # Utilizza AWSTools per verificare la regione
+    regioni_predefinite = ['eu-central-1', 'us-west-1', 'eu-south-1']
+    
+    if not args.region:
+        print("Seleziona una regione dall'elenco seguente o inserisci il nome di una regione.")
+        for i, regione in enumerate(regioni_predefinite, start=1):
+            print(f"{i}. {regione}")
+        print(f"{len(regioni_predefinite) + 1}. Inserisci una regione manualmente.")
+        
+        scelta = input("Inserisci il numero della tua scelta: ").strip()
+        
+        try:
+            scelta_numerica = int(scelta)
+            if 1 <= scelta_numerica <= len(regioni_predefinite):
+                args.region = regioni_predefinite[scelta_numerica - 1]
+            elif scelta_numerica == len(regioni_predefinite) + 1:
+                regione_manuale = input("Inserisci il nome della regione: ").strip()
+                if AWSTools.verify_region(regione_manuale, args.profile):
+                    args.region = regione_manuale
+                else:
+                    print(f"La regione '{regione_manuale}' non è valida. Riprova.")
+                    exit()
+            else:
+                print("Scelta non valida.")
+                exit()
+        except ValueError:
+            print("Inserisci un numero valido.")
+            exit()
+        
+        print(f"Regione selezionata: {args.region}")
+    
+    client = initialize_client('wafv2', args.profile, args.region, args.scope)
 
     try:
         while True:

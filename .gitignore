@@ -1,3 +1,4 @@
 .idea
 .p3venv
 .vscode
+__pycache__/
