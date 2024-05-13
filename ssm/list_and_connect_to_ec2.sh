@@ -1,16 +1,18 @@
 #!/bin/bash
 
+profile_arg="--profile $1"
+
 echo "Elenco delle istanze EC2 raggiungibili tramite SSM:"
 
 # Ottieni l'elenco degli ID delle istanze gestite da SSM utilizzando le credenziali di default o la configurazione ambientale
-instance_ids=$(aws ssm describe-instance-information --query 'InstanceInformationList[].InstanceId' --output text)
+instance_ids=$(aws $profile_arg ssm describe-instance-information --query 'InstanceInformationList[].InstanceId' --output text)
 
 declare -a instance_array=()
 index=1
 
 # Itera sugli ID delle istanze e ottieni i nomi delle istanze utilizzando le credenziali di default o la configurazione ambientale
 for id in $instance_ids; do
-    name=$(aws ec2 describe-tags --filters "Name=resource-id,Values=$id" "Name=key,Values=Name" --query 'Tags[?Key==`Name`].Value' --output text)
+    name=$(aws $profile_arg ec2 describe-tags --filters "Name=resource-id,Values=$id" "Name=key,Values=Name" --query 'Tags[?Key==`Name`].Value' --output text)
     # Controlla se il nome è vuoto, che indica che il tag Name non è stato trovato
     if [ -z "$name" ]; then
         name="No Name Tag"
@@ -39,4 +41,4 @@ fi
 # Avvia una sessione SSM con l'istanza selezionata
 selected_instance=${instance_array[$selection]}
 echo "Avvio sessione SSM con l'istanza: $selected_instance"
-aws ssm start-session --target $selected_instance
+aws $profile_arg ssm start-session --target $selected_instance
