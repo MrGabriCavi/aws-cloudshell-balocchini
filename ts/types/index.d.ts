@@ -41,5 +41,4 @@ export type BuildInputRDS = {
   port: string;
   status: string;
   arn: string;
-  accountId: string;
 };

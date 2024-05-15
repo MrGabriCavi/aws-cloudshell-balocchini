@@ -1,8 +1,7 @@
-import type { BuildInput, BuildInputRDS, IExportData } from '../types';
+import type { BuildInputRDS, IExportData } from '../../types';
 import DataBuilder from './dataBuilder';
 
 class RDSBuilder extends DataBuilder<IExportData> {
-  private readonly service = 'rds';
   constructor(data: IExportData) {
     super(data);
   }
@@ -15,6 +14,10 @@ class RDSBuilder extends DataBuilder<IExportData> {
         id: undefined,
       },
     });
+  }
+
+  buildCSV(data: BuildInputRDS) {
+    return `${data.id},${data.name},${data.endpoint},${data.port},${data.arn},${data.status}\n`;
   }
 
   buildArn(_: BuildInputRDS): string {

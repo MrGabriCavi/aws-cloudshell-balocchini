@@ -12,9 +12,12 @@ import type { AssumeRoleCommandOutput } from '@aws-sdk/client-sts';
 export default class S3 {
   private readonly client: S3Client;
   private buckets: string[];
-  constructor(credentials: AssumeRoleCommandOutput['Credentials']) {
+  constructor(
+    credentials: AssumeRoleCommandOutput['Credentials'],
+    region: string
+  ) {
     this.client = new S3Client({
-      region: settings.REGION,
+      region,
       credentials: {
         accessKeyId: credentials?.AccessKeyId as string,
         secretAccessKey: credentials?.SecretAccessKey as string,
@@ -26,6 +29,8 @@ export default class S3 {
 
   public async listBuckets() {
     const output = await this.client.send(new ListBucketsCommand({}));
+    console.log(output);
+
     this.buckets.push(
       ...(output.Buckets?.map((bucket) => bucket.Name) as string[])
     );

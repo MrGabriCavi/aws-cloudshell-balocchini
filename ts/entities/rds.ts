@@ -5,9 +5,12 @@ import settings from '../utils/settings';
 export default class RDS {
   private readonly client: RDSClient;
   private dbInstances: Record<string, string>[];
-  constructor(credentials: AssumeRoleCommandOutput['Credentials']) {
+  constructor(
+    credentials: AssumeRoleCommandOutput['Credentials'],
+    region: string
+  ) {
     this.client = new RDSClient({
-      region: settings.REGION,
+      region,
       credentials: {
         accessKeyId: credentials?.AccessKeyId as string,
         secretAccessKey: credentials?.SecretAccessKey as string,

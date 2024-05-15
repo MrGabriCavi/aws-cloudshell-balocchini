@@ -5,9 +5,12 @@ import settings from '../utils/settings';
 export default class EC2 {
   private readonly client: EC2Client;
   private ec2Instances: Record<string, string>[];
-  constructor(credentials: AssumeRoleCommandOutput['Credentials']) {
+  constructor(
+    credentials: AssumeRoleCommandOutput['Credentials'],
+    region: string
+  ) {
     this.client = new EC2Client({
-      region: settings.REGION,
+      region,
       credentials: {
         accessKeyId: credentials?.AccessKeyId as string,
         secretAccessKey: credentials?.SecretAccessKey as string,

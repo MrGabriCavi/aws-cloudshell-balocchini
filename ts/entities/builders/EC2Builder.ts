@@ -1,7 +1,7 @@
-import { type IExportData } from '../types';
-import { getARN } from '../utils';
+import { type IExportData } from '../../types';
+import { getARN } from '../../utils';
 import DataBuilder from './dataBuilder';
-import { type BuildInputEC2, type BuildURLInputEC2 } from '../types';
+import { type BuildInputEC2, type BuildURLInputEC2 } from '../../types';
 
 export default class EC2Builder extends DataBuilder<IExportData> {
   private readonly service = 'ec2';
@@ -19,6 +19,12 @@ export default class EC2Builder extends DataBuilder<IExportData> {
         arn: this.buildArn(data),
       },
     });
+  }
+
+  buildCSV(data: BuildInputEC2) {
+    return `${data.instanceId},${data.ip},${data.name},${
+      data.accountId
+    },${this.buildArn(data)}\n`;
   }
 
   buildArn(data: BuildInputEC2): string {

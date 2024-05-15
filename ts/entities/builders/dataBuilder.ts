@@ -1,4 +1,4 @@
-import type { BuildInput, BuildURLInput } from '../types';
+import type { BuildInput, BuildURLInput } from '../../types';
 
 export default abstract class DataBuilder<T> {
   constructor(protected data: T) {}
