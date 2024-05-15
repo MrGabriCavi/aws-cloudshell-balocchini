@@ -37,8 +37,6 @@ try {
     args.roleSessionName!
   );
 
-  console.log(args.region);
-
   const s3Client = new S3(assumedRole.Credentials, args.region!);
   const ec2Client = new EC2(assumedRole.Credentials, args.region!);
   const RDSClient = new RDS(assumedRole.Credentials, args.region!);
