@@ -1,6 +1,11 @@
 #!/bin/bash
 
-profile_arg="--profile $1"
+# Controlla se è stato fornito un argomento (nome del profilo)
+if [ -n "$1" ]; then
+    profile_arg="--profile $1"
+else
+    profile_arg=""
+fi
 
 echo "Elenco delle istanze EC2 raggiungibili tramite SSM:"
 
@@ -29,12 +34,17 @@ read selection
 # Verifica se la selezione è un numero entro l'intervallo valido
 re='^[0-9]+$'
 if ! [[ $selection =~ $re ]] ; then
-   echo "Uscita: selezione non valida"
+   echo "Uscita: selezione non valida" >&2
    exit 1
 fi
 
-if [ $selection -le 0 ] || [ $selection -ge $index ]; then
-    echo "Uscita: selezione fuori dall'intervallo valido"
+if [ -z "$selection" ]; then
+    echo "Uscita: nessuna selezione effettuata"
+    exit 0
+fi
+
+if [ $selection -le 0 ] || [ $selection -gt $index ]; then
+    echo "Uscita: selezione fuori dall'intervallo valido" >&2
     exit 1
 fi
 
