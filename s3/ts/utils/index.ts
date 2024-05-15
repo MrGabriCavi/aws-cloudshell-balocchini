@@ -47,5 +47,5 @@ export function getARN(
 }
 
 export function getURL(bucket: string, location: string) {
-  return `https://s3-${location}.amazonaws.com/${bucket}`;
+  return `https://s3.${location}.amazonaws.com/${bucket}`;
 }

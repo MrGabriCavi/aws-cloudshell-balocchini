@@ -4,10 +4,10 @@ import S3 from './entities/s3';
 import EC2 from './entities/ec2';
 import S3BucketBuilder from './entities/S3BucketBuilder';
 import EC2Builder from './entities/EC2Builder';
-import { writeFile } from './utils';
-import type { IExportData } from './types';
 import RDS from './entities/rds';
 import RDSBuilder from './entities/RDSBuilder';
+import { writeFile } from './utils';
+import type { IExportData } from './types';
 
 try {
   let profile = prompt('Enter your profile name:');
@@ -22,8 +22,8 @@ try {
   const assumedRole = await stsClient.assumeRole();
   const accountId = assumedRole.AssumedRoleUser?.AssumedRoleId as string;
   const s3Client = new S3(assumedRole.Credentials);
-  const ec2Client = new EC2(assumedRole.Credentials, accountId);
-  const RDSClient = new RDS(assumedRole.Credentials, accountId);
+  const ec2Client = new EC2(assumedRole.Credentials);
+  const RDSClient = new RDS(assumedRole.Credentials);
   const buckets = await s3Client.listBuckets();
   const instances = await ec2Client.listInstances();
   const rdsInstances = await RDSClient.listDBInstances();
@@ -51,9 +51,9 @@ try {
     idata = new EC2Builder(idata).build({
       instanceId: instance.id,
       location: instance.location,
-      accountId: instance.accountId,
       ip: instance.ip,
       name: instance.name,
+      accountId: instance.accountId,
     });
   }
 
@@ -65,6 +65,7 @@ try {
       endpoint: rdsInstance.endpoint,
       id: rdsInstance.id,
       arn: rdsInstance.arn,
+      accountId,
     });
   }
 

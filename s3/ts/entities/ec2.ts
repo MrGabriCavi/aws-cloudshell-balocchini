@@ -4,12 +4,8 @@ import settings from '../utils/settings';
 
 export default class EC2 {
   private readonly client: EC2Client;
-  private readonly accountId: string;
   private ec2Instances: Record<string, string>[];
-  constructor(
-    credentials: AssumeRoleCommandOutput['Credentials'],
-    accountId: string
-  ) {
+  constructor(credentials: AssumeRoleCommandOutput['Credentials']) {
     this.client = new EC2Client({
       region: settings.REGION,
       credentials: {
@@ -19,7 +15,6 @@ export default class EC2 {
       },
     });
     this.ec2Instances = [];
-    this.accountId = accountId;
   }
 
   public async listInstances() {
@@ -36,7 +31,8 @@ export default class EC2 {
           id: instance.InstanceId as string,
           ip: instance.PublicIpAddress as string,
           name: instance.KeyName as string,
-          accountId: this.accountId,
+          accountId: reservation.OwnerId as string,
+          location: instance.Placement?.AvailabilityZone as string,
         });
       }
     }

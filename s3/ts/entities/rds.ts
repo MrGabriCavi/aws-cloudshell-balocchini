@@ -4,12 +4,8 @@ import settings from '../utils/settings';
 
 export default class RDS {
   private readonly client: RDSClient;
-  private readonly accountId: string;
   private dbInstances: Record<string, string>[];
-  constructor(
-    credentials: AssumeRoleCommandOutput['Credentials'],
-    accountId: string
-  ) {
+  constructor(credentials: AssumeRoleCommandOutput['Credentials']) {
     this.client = new RDSClient({
       region: settings.REGION,
       credentials: {
@@ -19,7 +15,6 @@ export default class RDS {
       },
     });
     this.dbInstances = [];
-    this.accountId = accountId;
   }
 
   public async listDBInstances() {
@@ -35,7 +30,6 @@ export default class RDS {
         port: dbInstance.Endpoint?.Port?.toString() as string,
         status: dbInstance.DBInstanceStatus as string,
         arn: dbInstance.DBInstanceArn as string,
-        accountId: this.accountId,
       });
     }
     return this.dbInstances;
