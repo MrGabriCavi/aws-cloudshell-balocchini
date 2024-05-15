@@ -1,6 +1,5 @@
 import { DescribeInstancesCommand, EC2Client } from '@aws-sdk/client-ec2';
 import { type AssumeRoleCommandOutput } from '@aws-sdk/client-sts';
-import settings from '../utils/settings';
 
 export default class EC2 {
   private readonly client: EC2Client;

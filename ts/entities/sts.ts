@@ -2,9 +2,7 @@ import {
   AssumeRoleCommand,
   GetCallerIdentityCommand,
   STSClient,
-  type AssumeRoleCommandInput,
   type AssumeRoleCommandOutput,
-  type GetCallerIdentityCommandOutput,
 } from '@aws-sdk/client-sts';
 import { type AwsCredentialIdentityProvider } from '@aws-sdk/types';
 import { getAWSProfile } from '../utils';

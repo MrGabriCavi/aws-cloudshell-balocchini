@@ -1,6 +1,5 @@
 import { DescribeDBInstancesCommand, RDSClient } from '@aws-sdk/client-rds';
 import type { AssumeRoleCommandOutput } from '@aws-sdk/client-sts';
-import settings from '../utils/settings';
 
 export default class RDS {
   private readonly client: RDSClient;

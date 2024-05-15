@@ -1,4 +1,3 @@
-import settings from '../utils/settings';
 import {
   GetBucketAclCommand,
   GetBucketLocationCommand,

@@ -1,5 +1,4 @@
 import fs from 'fs/promises';
-import settings from './settings';
 import { fromIni } from '@aws-sdk/credential-providers';
 
 export async function writeFile<T>(
