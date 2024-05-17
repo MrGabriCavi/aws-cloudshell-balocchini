@@ -31,42 +31,37 @@ export default class S3 {
     this.buckets.push(
       ...(output.Buckets?.map((bucket) => bucket.Name) as string[])
     );
-
     return this.buckets;
   }
 
   private async getBucketsAction<T>(
-    buckets: string[],
-    action: (bucket: string) => Promise<T | null>
-  ) {
-    if (!buckets.length) return null;
+    _bucket: string,
+    action: (bucket: string) => Promise<T | undefined>
+  ): Promise<T | undefined> {
+    if (!this.buckets.length) return undefined;
 
-    if (buckets.length === 1) {
-      return action(buckets[0]);
-    }
-
-    for (const bucket of buckets) {
+    for (const bucket of this.buckets) {
       try {
-        return action(bucket);
+        if (bucket === _bucket) {
+          return action(bucket);
+        }
       } catch (e: any) {
         console.error(e.message);
       }
     }
-
-    return null;
+    return undefined;
   }
 
-  public async getBucketLocation() {
+  public async getBucketLocation(bucket: string) {
     return this.getBucketsAction<GetBucketLocationCommandOutput>(
-      this.buckets,
+      bucket,
       (Bucket) => this.client.send(new GetBucketLocationCommand({ Bucket }))
     );
   }
 
-  public async getBucketAcl() {
-    return this.getBucketsAction<GetBucketAclCommandOutput>(
-      this.buckets,
-      (Bucket) => this.client.send(new GetBucketAclCommand({ Bucket }))
+  public async getBucketAcl(bucket: string) {
+    return this.getBucketsAction<GetBucketAclCommandOutput>(bucket, (Bucket) =>
+      this.client.send(new GetBucketAclCommand({ Bucket }))
     );
   }
 }

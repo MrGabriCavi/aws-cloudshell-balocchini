@@ -19,10 +19,6 @@ export function getArgs() {
         type: 'string',
         short: 'r',
       },
-      service: {
-        type: 'string',
-        short: 's',
-      },
       help: {
         type: 'boolean',
         short: 'h',

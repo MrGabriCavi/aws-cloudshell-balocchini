@@ -1,14 +1,14 @@
-import type { BuildInputRDS, IExportData } from '../../types';
 import DataBuilder from './dataBuilder';
+import type { BuildInputRDS, IExportData } from '../../types';
 
 class RDSBuilder extends DataBuilder<IExportData> {
-  constructor(data: IExportData) {
-    super(data);
+  constructor(data: IExportData, csvData: string) {
+    super(data, csvData);
   }
 
   build(data: BuildInputRDS): IExportData {
-    return (this.data = {
-      ...this.data,
+    return (this.jsonData = {
+      ...this.jsonData,
       [data.id]: {
         ...data,
         id: undefined,
@@ -17,7 +17,7 @@ class RDSBuilder extends DataBuilder<IExportData> {
   }
 
   buildCSV(data: BuildInputRDS) {
-    return `${data.id},${data.name},${data.endpoint},${data.port},${data.arn},${data.status}\n`;
+    return (this.csvData += `${data.id},${data.name},${data.endpoint},${data.port},${data.arn},${data.status}\n`);
   }
 
   buildArn(_: BuildInputRDS): string {
@@ -26,6 +26,14 @@ class RDSBuilder extends DataBuilder<IExportData> {
 
   buildURL(): string {
     throw new Error('Method not implemented.');
+  }
+
+  getJSON(): IExportData {
+    return this.jsonData;
+  }
+
+  getCSV(): string {
+    return this.csvData;
   }
 }
 

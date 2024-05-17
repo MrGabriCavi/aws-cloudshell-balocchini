@@ -1,16 +1,16 @@
+import DataBuilder from './dataBuilder';
 import { type IExportData } from '../../types';
 import { getARN, getURL } from '../../utils';
-import DataBuilder from './dataBuilder';
 import { type BuildInputS3, type BuildURLInputS3 } from '../../types';
 
 export default class S3BucketBuilder extends DataBuilder<IExportData> {
   private readonly service = 's3';
-  constructor(data: IExportData) {
-    super(data);
+  constructor(data: IExportData, csvData: string) {
+    super(data, csvData);
   }
   build({ bucket, location, accountId }: BuildInputS3): IExportData {
-    return (this.data = {
-      ...this.data,
+    return (this.jsonData = {
+      ...this.jsonData,
       [bucket]: {
         location,
         accountId,
@@ -21,10 +21,12 @@ export default class S3BucketBuilder extends DataBuilder<IExportData> {
   }
 
   buildCSV({ bucket, location, accountId }: BuildInputS3) {
-    return `${bucket},${location},${accountId},${this.buildURL({
-      bucket,
-      location,
-    })},${this.buildArn({ location, accountId, bucket })}\n`;
+    return (this.csvData += `${bucket},${location},${accountId},${this.buildURL(
+      {
+        bucket,
+        location,
+      }
+    )},${this.buildArn({ location, accountId, bucket })}\n`);
   }
 
   buildArn({ location, accountId, bucket }: BuildInputS3): string {
@@ -33,5 +35,13 @@ export default class S3BucketBuilder extends DataBuilder<IExportData> {
 
   buildURL({ bucket, location }: BuildURLInputS3): string {
     return getURL(bucket, location);
+  }
+
+  getJSON(): IExportData {
+    return this.jsonData;
+  }
+
+  getCSV(): string {
+    return this.csvData;
   }
 }

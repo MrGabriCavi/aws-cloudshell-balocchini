@@ -1,17 +1,17 @@
+import DataBuilder from './dataBuilder';
 import { type IExportData } from '../../types';
 import { getARN } from '../../utils';
-import DataBuilder from './dataBuilder';
 import { type BuildInputEC2, type BuildURLInputEC2 } from '../../types';
 
 export default class EC2Builder extends DataBuilder<IExportData> {
   private readonly service = 'ec2';
-  constructor(data: IExportData) {
-    super(data);
+  constructor(data: IExportData, csvData: string) {
+    super(data, csvData);
   }
 
   build(data: BuildInputEC2): IExportData {
-    return (this.data = {
-      ...this.data,
+    return (this.jsonData = {
+      ...this.jsonData,
       [data.instanceId]: {
         ip: data.ip,
         name: data.name,
@@ -22,9 +22,9 @@ export default class EC2Builder extends DataBuilder<IExportData> {
   }
 
   buildCSV(data: BuildInputEC2) {
-    return `${data.instanceId},${data.ip},${data.name},${
+    return (this.csvData += `${data.instanceId},${data.ip},${data.name},${
       data.accountId
-    },${this.buildArn(data)}\n`;
+    },${this.buildArn(data)}\n`);
   }
 
   buildArn(data: BuildInputEC2): string {
@@ -39,5 +39,13 @@ export default class EC2Builder extends DataBuilder<IExportData> {
 
   buildURL(_: BuildURLInputEC2): string {
     throw new Error('Method not implemented.');
+  }
+
+  getJSON(): IExportData {
+    return this.jsonData;
+  }
+
+  getCSV(): string {
+    return this.csvData;
   }
 }
