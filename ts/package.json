@@ -1,0 +1,21 @@
+{
+  "name": "awsutility",
+  "module": "index.ts",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "start": "bun run --hot ."
+  },
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-ec2": "^3.575.0",
+    "@aws-sdk/client-rds": "^3.575.0",
+    "@aws-sdk/client-s3": "^3.574.0",
+    "@aws-sdk/client-sts": "^3.574.0",
+    "@aws-sdk/credential-providers": "^3.574.0"
+  }
+}
