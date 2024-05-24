@@ -1,4 +1,8 @@
-import { DescribeDBInstancesCommand, RDSClient } from '@aws-sdk/client-rds';
+import {
+  CreateDBSnapshotCommand,
+  DescribeDBInstancesCommand,
+  RDSClient,
+} from '@aws-sdk/client-rds';
 import type { AssumeRoleCommandOutput } from '@aws-sdk/client-sts';
 
 export default class RDS {
@@ -19,7 +23,7 @@ export default class RDS {
     this.dbInstances = [];
   }
 
-  public async listDBInstances() {
+  public async listInstances() {
     const list = await this.client.send(new DescribeDBInstancesCommand({}));
     if (!list.DBInstances || !list.DBInstances?.length) {
       return [];
@@ -35,5 +39,15 @@ export default class RDS {
       });
     }
     return this.dbInstances;
+  }
+
+  public async createSnapshot(instanceId: string, snapshotName: string) {
+    // Create a snapshot of the RDS instance
+    return await this.client.send(
+      new CreateDBSnapshotCommand({
+        DBInstanceIdentifier: instanceId,
+        DBSnapshotIdentifier: snapshotName,
+      })
+    );
   }
 }

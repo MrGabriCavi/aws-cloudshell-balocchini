@@ -18,6 +18,8 @@ import {
   type BuildersType,
   Services,
   FileTypes,
+  type AWSClient,
+  type BuilderInputFromBuilderInstance,
 } from '../types';
 import type { AssumeRoleCommandOutput } from '@aws-sdk/client-sts';
 import { getEC2Menu, getExtension, getRDSMenu, getS3Menu } from './menu';
@@ -240,7 +242,7 @@ export async function handleS3Menu(
   while (selectMenuS3 !== 0) {
     switch (selectMenuS3) {
       case S3Menu.LIST_BUCKETS:
-        const buckets = await s3Client.listBuckets();
+        const buckets = await s3Client.listInstances();
         if (!buckets.length) {
           console.error('No buckets found');
           break;
@@ -311,7 +313,7 @@ export async function handleEC2Menu(
         const ext = getExtension();
         if (!ext || (!ext.includes('json') && !ext.includes('csv'))) {
           console.error('No file extension provided');
-          process.exit(1);
+          return;
         }
         await buildData<BuildInputEC2, undefined>(
           instances,
@@ -325,7 +327,11 @@ export async function handleEC2Menu(
 
         const data = ext === FileTypes.CSV ? icsv : JSON.stringify(idata);
         await writeFile(data, 'ec2-instances', ext);
-
+        await handleListInstances<Services.EC2>(ec2Client, {
+          jsonData: idata,
+          csvData: icsv,
+          filename: 'ec2-instances',
+        });
         break;
       default:
         console.warn('Invalid selection');
@@ -333,6 +339,42 @@ export async function handleEC2Menu(
     }
     selectMenuEC2 = getEC2Menu();
   }
+}
+
+async function handleListInstances<T, Z>(
+  client: AWSClient<T>,
+  args: { jsonData: IExportData; csvData: string; filename: string }
+) {
+  const instances = await client.listInstances();
+  if (!instances.length) {
+    console.error('No instances found');
+    return;
+  }
+  const builder = new RDSBuilder(args.jsonData, args.csvData);
+  const params = {
+    jsonData: args.jsonData,
+    csvData: args.csvData,
+    service: Services.RDS,
+  };
+  const ext = getExtension();
+  if (!ext || (!ext.includes('json') && !ext.includes('csv'))) {
+    console.error('No file extension provided');
+    return;
+  }
+
+  await buildData<BuilderInputFromBuilderInstance<typeof builder>, undefined>(
+    instances,
+    builder,
+    ext,
+    params
+  );
+
+  args.jsonData = builder.getJSON();
+  args.csvData = builder.getCSV();
+
+  const data =
+    ext === FileTypes.CSV ? args.csvData : JSON.stringify(args.jsonData);
+  await writeFile(data, args.filename, ext);
 }
 
 export async function handleRDSMenu(
@@ -347,34 +389,30 @@ export async function handleRDSMenu(
   while (selectMenuRDS !== 0) {
     switch (selectMenuRDS) {
       case RDSMenu.LIST_INSTANCES:
-        const rdsInstances = await RDSClient.listDBInstances();
-        if (!rdsInstances.length) {
+        await handleListInstances(RDSClient, {
+          jsonData: rdsdata,
+          csvData: rdscsv,
+          filename: 'rds-instances',
+        });
+        break;
+      case RDSMenu.CREATE_SNAPSHOT:
+        const instances = await RDSClient.listInstances();
+        if (!instances.length) {
           console.error('No RDS instances found');
           break;
         }
-        const builder = new RDSBuilder(rdsdata, rdscsv);
-        const params = {
-          jsonData: rdsdata,
-          csvData: rdscsv,
-          service: Services.RDS,
-        };
-        const ext = getExtension();
-        if (!ext || (!ext.includes('json') && !ext.includes('csv'))) {
-          console.error('No file extension provided');
-          process.exit(1);
+        const instance = prompt('Select the instance (0 to exit):');
+        if (!instance || +instance === 0) {
+          console.error('No instance selected');
+          break;
         }
-        await buildData<BuildInputRDS, undefined>(
-          rdsInstances,
-          builder,
-          ext,
-          params
+        const instanceId = instances[+instance].id;
+        const snapshotName = prompt('Enter the snapshot name:') || 'snapshot';
+        const snapshot = await RDSClient.createSnapshot(
+          instanceId,
+          snapshotName
         );
-
-        rdsdata = builder.getJSON();
-        rdscsv = builder.getCSV();
-
-        const data = ext === FileTypes.CSV ? rdscsv : JSON.stringify(rdsdata);
-        await writeFile(data, 'rds-instances', ext);
+        console.info('Snapshot created:', snapshot.DBSnapshot?.DBSnapshotArn);
         break;
       default:
         console.warn('Invalid selection');

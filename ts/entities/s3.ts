@@ -26,7 +26,7 @@ export default class S3 {
     this.buckets = [];
   }
 
-  public async listBuckets() {
+  public async listInstances() {
     const output = await this.client.send(new ListBucketsCommand({}));
     this.buckets.push(
       ...(output.Buckets?.map((bucket) => bucket.Name) as string[])

@@ -19,6 +19,7 @@ AWS Menu:
 1. S3 Operations
 2. EC2 Operations
 3. RDS Operations
+4. CloudFront Operations
 ---------------------
 Select an option:`
   )!;
@@ -50,6 +51,18 @@ RDS Menu:
 ---------------------
 0. Exit
 1. List Instances
+2. Create Snapshot
+---------------------
+Select an option:`)!;
+}
+
+export function getCloudFrontMenu() {
+  return +prompt(`
+RDS Menu:
+---------------------
+0. Exit
+1. List Instances
+2. Create Invalidation
 ---------------------
 Select an option:`)!;
 }

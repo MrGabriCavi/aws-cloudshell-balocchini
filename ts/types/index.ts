@@ -1,6 +1,10 @@
 import type EC2Builder from '../entities/builders/EC2Builder';
 import type RDSBuilder from '../entities/builders/RDSBuilder';
 import type S3BucketBuilder from '../entities/builders/S3BucketBuilder';
+import EC2 from '../entities/ec2';
+import RDS from '../entities/rds';
+import type S3 from '../entities/s3';
+import type { Services } from './enum';
 
 export type IExportData = Record<string, Record<string, string | undefined>>;
 
@@ -43,19 +47,27 @@ export type BuildInputRDS = {
   arn: string;
 };
 
-export type Element<T> = T extends string[]
-  ? string[]
-  : Record<string, string>[];
+export type Element<T> = T extends string[] | Record<string, string>[]
+  ? T
+  : never;
 export type BuilderType<T> = T extends string[]
   ? S3BucketBuilder
   : T extends BuildInputEC2
   ? EC2Builder
   : RDSBuilder;
-
+export type BuilderInputFromBuilderInstance<T> = T extends S3BucketBuilder
+  ? string[]
+  : Record<string, string>[];
 export type BuilderHandler<T, U> = (
   builder: T,
   data: U,
   format: string
 ) => void;
+
+export type AWSClient<T> = T extends Services.S3
+  ? S3
+  : T extends Services.EC2
+  ? EC2
+  : RDS;
 
 export * from './enum';

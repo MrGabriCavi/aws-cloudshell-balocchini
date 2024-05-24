@@ -18,6 +18,7 @@ export enum EC2Menu {
 export enum RDSMenu {
   EXIT,
   LIST_INSTANCES,
+  CREATE_SNAPSHOT,
 }
 
 export enum Services {
