@@ -4,16 +4,17 @@ from .ec2session import EC2Session
 from .operation import SSMOperation
 
 class SSMMenu:
-    def __init__(self, session):
+    def __init__(self, session, profile=None):
         self.ec2_session = EC2Session(session)
         self.ssm_operation = SSMOperation(self.ec2_session)
+        self.profile = profile
 
     def display_menu(self, instance_id=None):
         if instance_id:
             instances = self.ec2_session.list_ssm_instances()
             instance = next((inst for inst in instances if inst['InstanceId'] == instance_id), None)
             if instance:
-                self.ssm_operation.display_operations(instance_id, instance['Region'])
+                self.ssm_operation.display_operations(instance_id, instance['Region'], self.profile)
             else:
                 print(f"Istanza {instance_id} non trovata.")
             return
@@ -37,7 +38,7 @@ class SSMMenu:
                 choice = input("Inserisci il numero dell'istanza per avviare la sessione SSM: ").strip()
                 try:
                     instance = instances[int(choice) - 1]
-                    self.ssm_operation.display_operations(instance['InstanceId'], instance['Region'])
+                    self.ssm_operation.display_operations(instance['InstanceId'], instance['Region'], self.profile)
                     break
                 except (IndexError, ValueError):
                     print("Scelta non valida. Riprova.")

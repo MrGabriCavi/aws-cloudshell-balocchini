@@ -40,12 +40,13 @@ class EC2Session:
 
         return instance_details
 
-    def start_session(self, instance_id, region):
+    def start_session(self, instance_id, region, profile=None):
         """Avvia una sessione SSM con l'istanza specificata."""
         try:
-            response = self.ssm.start_session(Target=instance_id)
-            session_id = response['SessionId']
-            print(f"Avviata sessione SSM con l'istanza {instance_id}")
-            subprocess.run(['aws', 'ssm', 'start-session', '--target', instance_id, '--region', region])
+            print(f"Avviamento della sessione SSM con l'istanza {instance_id} nella regione {region}...")
+            cmd = ['aws', 'ssm', 'start-session', '--target', instance_id, '--region', region]
+            if profile:
+                cmd.extend(['--profile', profile])
+            subprocess.run(cmd)
         except Exception as e:
             print(f"Errore nell'avvio della sessione SSM: {e}")

@@ -28,9 +28,9 @@ def main():
     if args.func:
         if args.func == 's3':
             s3_menu = S3Menu(session)
-            s3_menu.display_menu(args.op, args.s3_bucket, args.s3_directory)
+            s3_menu.display_menu(args.op, args.s3_bucket, args.s3_directory, args.s3_md_include, args.s3_md_exclude)
         elif args.func == 'ssm':
-            ssm_menu = SSMMenu(session)
+            ssm_menu = SSMMenu(session, args.profile)
             ssm_menu.display_menu(args.ssm_i)
         else:
             print("Funzionalità non riconosciuta. Usa 's3' o 'ssm'.")
