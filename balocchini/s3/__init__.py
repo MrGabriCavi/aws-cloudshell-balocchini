@@ -11,3 +11,4 @@ def load_arguments(parser):
     parser.add_argument('--s3-directory', type=str, help='Directory di destinazione per il download')
     parser.add_argument('--s3-md-include', type=str, nargs='*', help='Elenco di bucket da includere per il download multiplo')
     parser.add_argument('--s3-md-exclude', type=str, nargs='*', help='Elenco di bucket da escludere per il download multiplo')
+    parser.add_argument('--s3-with-checksum-sha256', action='store_true', help='Genera un file SHA-256 con le checksum dei file')

@@ -12,9 +12,9 @@ class S3Menu:
         self.s3_download = S3Download(session)
         self.s3_operation = S3Operation(self.s3_common, self.s3_delete, self.s3_download)
 
-    def display_menu(self, op=None, bucket=None, directory=None, include=None, exclude=None):
+    def display_menu(self, op=None, bucket=None, directory=None, include=None, exclude=None, with_checksum=None):
         if op:
-            self.s3_operation.execute(op, bucket, directory, include, exclude)
+            self.s3_operation.execute(op, bucket, directory, include, exclude, with_checksum)
             return
 
         while True:
@@ -31,9 +31,9 @@ class S3Menu:
             elif choice in ['2', 'delete-bucket']:
                 self.s3_operation.execute('delete-bucket', bucket)
             elif choice in ['3', 'download-bucket']:
-                self.s3_operation.execute('download-bucket', bucket, directory)
+                self.s3_operation.execute('download-bucket', bucket, directory, with_checksum)
             elif choice in ['4', 'download-multiple-buckets']:
-                self.s3_operation.execute('download-multiple-buckets', directory=directory, include=include, exclude=exclude)
+                self.s3_operation.execute('download-multiple-buckets', directory=directory, include=include, exclude=exclude, with_checksum=with_checksum)
             elif choice == 'q':
                 break
             else:

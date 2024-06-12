@@ -1,6 +1,7 @@
 # balocchini/s3/operation.py
 
 import os
+import hashlib
 
 class S3Operation:
     def __init__(self, s3_common, s3_delete, s3_download):
@@ -8,15 +9,15 @@ class S3Operation:
         self.s3_delete = s3_delete
         self.s3_download = s3_download
 
-    def execute(self, operation, bucket=None, directory=None, include=None, exclude=None):
+    def execute(self, operation, bucket=None, directory=None, include=None, exclude=None, with_checksum=None):
         if operation == 'list-buckets':
             self.list_buckets()
         elif operation == 'delete-bucket':
             self.delete_bucket(bucket)
         elif operation == 'download-bucket':
-            self.download_bucket(bucket, directory)
+            self.download_bucket(bucket, directory, with_checksum)
         elif operation == 'download-multiple-buckets':
-            self.download_multiple_buckets(directory, include, exclude)
+            self.download_multiple_buckets(directory, include, exclude, with_checksum)
         else:
             print("Operazione non riconosciuta. Usa 'list-buckets', 'delete-bucket', 'download-bucket' o 'download-multiple-buckets'.")
 
@@ -48,7 +49,7 @@ class S3Operation:
         self.s3_delete.delete_objects(bucket, self.s3_common.count_objects)
         self.s3_delete.delete_bucket(bucket)
 
-    def download_bucket(self, bucket, directory):
+    def download_bucket(self, bucket, directory, with_checksum):
         if not bucket:
             buckets = self.s3_common.list_buckets()
             print("\nScegli un bucket da scaricare:")
@@ -67,9 +68,23 @@ class S3Operation:
                 print("Directory non valida.")
                 return
 
-        self.s3_download.download_bucket(bucket, directory)
+        if with_checksum is None:
+            checksum_choice = input("Vuoi generare le checksum SHA-256? (y/n): ").strip().lower()
+            with_checksum = checksum_choice == 'y'
 
-    def download_multiple_buckets(self, directory, include=None, exclude=None):
+        bucket_directory = os.path.join(directory, bucket)
+        os.makedirs(bucket_directory, exist_ok=True)
+
+        if with_checksum:
+            objects_directory = os.path.join(bucket_directory, 'objects')
+            os.makedirs(objects_directory, exist_ok=True)
+            checksum_file_path = os.path.join(bucket_directory, f'{bucket}.sha256')
+            with open(checksum_file_path, 'w') as checksum_file:
+                self.s3_download.download_bucket(bucket, objects_directory, checksum_file)
+        else:
+            self.s3_download.download_bucket(bucket, bucket_directory)
+
+    def download_multiple_buckets(self, directory, include=None, exclude=None, with_checksum=None):
         buckets = self.s3_common.list_buckets()
 
         if include:
@@ -89,4 +104,4 @@ class S3Operation:
 
         for bucket in selected_buckets:
             print(f"Scaricamento del bucket: {bucket}")
-            self.download_bucket(bucket, directory)
+            self.download_bucket(bucket, directory, with_checksum)
