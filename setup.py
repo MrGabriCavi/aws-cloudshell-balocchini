@@ -6,7 +6,8 @@ setup(
     packages=find_packages(),
     install_requires=[
         'boto3>=1.18.0',
-        'numpy>=1.20.1'
+        'numpy>=1.20.1',
+        'tqdm>=4.60.0'
     ],
     extras_require={
         'dev': [
