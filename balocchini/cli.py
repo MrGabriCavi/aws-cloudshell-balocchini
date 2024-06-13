@@ -4,8 +4,10 @@ import argparse
 from balocchini.session.session import create_session
 import balocchini.s3 as s3
 import balocchini.ssm as ssm
+import balocchini.sts as sts
 from balocchini.s3.menu import S3Menu
 from balocchini.ssm.menu import SSMMenu
+from balocchini.sts.menu import STSMenu
 
 
 def main():
@@ -20,6 +22,7 @@ def main():
     # Caricamento degli argomenti specifici
     s3.load_arguments(parser)
     ssm.load_arguments(parser)
+    sts.load_arguments(parser)
 
     args = parser.parse_args()
 
@@ -33,8 +36,11 @@ def main():
         elif args.func == 'ssm':
             ssm_menu = SSMMenu(session, args.profile)
             ssm_menu.display_menu(args.ssm_i)
+        elif args.func == 'sts':
+            sts_menu = STSMenu(session)
+            sts_menu.display_menu(args.sts_role_arn, args.sts_role_session_name, args.sts_target_profile)
         else:
-            print("Funzionalità non riconosciuta. Usa 's3' o 'ssm'.")
+            print("Funzionalità non riconosciuta. Usa 's3', 'ssm' o 'sts'.")
     else:
         main_menu(session)
 
@@ -44,6 +50,7 @@ def main_menu(session):
         print("\nScegli una funzionalità:")
         print("1. s3")
         print("2. ssm")
+        print("3. sts")
         print("q. quit")
         choice = input("Inserisci il numero o il nome della funzionalità: ").strip().lower()
 
@@ -53,6 +60,9 @@ def main_menu(session):
         elif choice in ['2', 'ssm']:
             ssm_menu = SSMMenu(session)
             ssm_menu.display_menu()
+        elif choice in ['3', 'sts']:
+            sts_menu = STSMenu(session)
+            sts_menu.display_menu()
         elif choice == 'q':
             print("Uscita dal programma.")
             break
