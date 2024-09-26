@@ -4,6 +4,7 @@ from .common import S3Common
 from .delete import S3Delete
 from .download import S3Download
 from .operation import S3Operation
+from .table_info import S3TableInfo
 
 class S3Menu:
     def __init__(self, session):
@@ -11,6 +12,7 @@ class S3Menu:
         self.s3_delete = S3Delete(session)
         self.s3_download = S3Download(session)
         self.s3_operation = S3Operation(self.s3_common, self.s3_delete, self.s3_download)
+        self.s3_table_info = S3TableInfo(session)
 
     def display_menu(self, op=None, bucket=None, directory=None, include=None, exclude=None, with_checksum=None):
         if op:
@@ -23,6 +25,7 @@ class S3Menu:
             print("2. delete-bucket")
             print("3. download-bucket")
             print("4. download-multiple-buckets")
+            print("5. table-info")
             print("q. torna-al-menu-principale")
             choice = input("Inserisci il numero o il nome dell'operazione: ").strip().lower()
 
@@ -34,6 +37,8 @@ class S3Menu:
                 self.s3_operation.execute('download-bucket', bucket, directory, with_checksum)
             elif choice in ['4', 'download-multiple-buckets']:
                 self.s3_operation.execute('download-multiple-buckets', directory=directory, include=include, exclude=exclude, with_checksum=with_checksum)
+            elif choice in ['5', 'table-info']:
+                self.s3_table_info.print_table_info()
             elif choice == 'q':
                 break
             else:
